@@ -12,7 +12,7 @@ import HistoryScreen from '../screens/history/HistoryScreen';
 import TripScreen from '../screens/trip/TripScreen';
 import TrackingScreen from '../screens/tracking/TrackingScreen';
 import DriverHomeScreen from '../screens/driver/DriverHomeScreen';
-
+import PaymentScreen from '../screens/payment/PaymentScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -64,6 +64,7 @@ const AppNavigator = () => {
             />
             <Stack.Screen name="Trip"     component={TripScreen} />
             <Stack.Screen name="Tracking" component={TrackingScreen} />
+            <Stack.Screen name="Payment"  component={PaymentScreen} />
           </>
         ) : (
           <>
