@@ -106,6 +106,13 @@ const TrackingScreen = ({ navigation }) => {
     },
   })[language] || {};
 
+  // Use fare already calculated in TripScreen — avoid recalculating
+  useEffect(() => {
+    if (trip.estimatedFare && trip.estimatedFare > 0) {
+      setFareTotal(trip.estimatedFare);
+    }
+  }, []);
+
   useEffect(() => {
     const searchTimer = setTimeout(() => {
       setPhase('driver_assigned');
@@ -168,9 +175,11 @@ const TrackingScreen = ({ navigation }) => {
 
         const leg = data2.routes[0].legs[0];
         const realDistKm = leg.distance.value / 1000;
-        const realFare = calcularTarifa(realDistKm);
         setDistanciaViaje(parseFloat(realDistKm.toFixed(1)));
-        setFareTotal(realFare);
+        // Only use recalculated fare if Redux fare is not set
+        if (!trip.estimatedFare || trip.estimatedFare === 0) {
+          setFareTotal(calcularTarifa(realDistKm));
+        }
         setDistanciaText(leg.distance.text);
         setDuracionText(leg.duration.text);
       } else {
@@ -245,21 +254,16 @@ const TrackingScreen = ({ navigation }) => {
       Alert.alert('', language === 'es' ? 'Selecciona una calificación' : 'Select a rating');
       return;
     }
-    dispatch(addTrip({
-      id:          Date.now().toString(),
-      passenger:   language === 'es' ? 'Tú' : 'You',
-      origin:      trip.origin?.text || `${trip.origin?.coords?.latitude?.toFixed(4)}, ${trip.origin?.coords?.longitude?.toFixed(4)}` || '',
-      destination: trip.destination?.text || `${trip.destination?.coords?.latitude?.toFixed(4)}, ${trip.destination?.coords?.longitude?.toFixed(4)}` || '',
-      fare:        fareTotal,
-      distKm:      distanciaViaje,
-      rating:      selectedRating,
-      date:        new Date().toISOString(),
-      userType:    'passenger',
-      driverName:  driver.name,
-    }));
     setShowRating(false);
-    dispatch(clearTrip());
-    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    // Navigate to payment screen with trip details
+    navigation.navigate('Payment', {
+      fare:           fareTotal,
+      distKm:         distanciaViaje,
+      origin:         trip.origin?.text || '',
+      destination:    trip.destination?.text || '',
+      driverName:     driver.name,
+      selectedRating,
+    });
   };
 
   const statusText = {
