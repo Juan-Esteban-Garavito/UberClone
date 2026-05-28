@@ -1,97 +1,180 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# UberClone 🚗
 
-# Getting Started
+A full-featured ride-hailing mobile application built with React Native CLI, inspired by Uber. Supports both passenger and driver profiles with real-time map tracking, Google Places autocomplete, distance-based pricing, and Mercado Pago payment integration.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## Tech Stack
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **React Native CLI** — Cross-platform mobile app (Android & iOS)
+- **Firebase** — Authentication + Firestore database + Storage
+- **Redux Toolkit** — Global state management
+- **React Navigation** — Stack and Tab navigation
+- **Google Maps / Places / Directions API** — Maps, autocomplete, routing
+- **Mercado Pago API** — Payment gateway (sandbox)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
+## Prerequisites
+
+Make sure you have the following installed before running the project:
+
+| Tool | Version |
+|------|---------|
+| Node.js | >= 22.11.0 |
+| Java JDK | 17 |
+| Android Studio | Latest |
+| React Native CLI | Latest |
+| Git | Latest |
+
+---
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Juan-Esteban-Garavito/UberClone.git
+cd UberClone
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Google Maps API Key
+
+Open `android/app/src/main/AndroidManifest.xml` and replace `YOUR_GOOGLE_MAPS_API_KEY` with your key:
+
+```xml
+<meta-data
+  android:name="com.google.android.geo.API_KEY"
+  android:value="YOUR_GOOGLE_MAPS_API_KEY" />
+```
+
+Make sure these APIs are enabled in your Google Cloud Console:
+- Maps SDK for Android
+- Places API
+- Directions API
+- Geocoding API
+- Distance Matrix API
+
+### 4. Configure Firebase
+
+The project is already connected to Firebase via `android/app/google-services.json`.
+
+If you need to use your own Firebase project:
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com)
+2. Create a new project
+3. Add an Android app with package name `com.uberclone`
+4. Download `google-services.json` and place it in `android/app/`
+5. Enable the following in Firebase console:
+   - **Authentication** → Email/Password
+   - **Firestore Database** → Start in test mode
+   - **Storage** → Start in test mode
+
+### 5. Run on Android
+
+Connect a physical device or start an Android emulator, then:
+
+```bash
+npx react-native run-android
+```
+
+Or start Metro bundler separately:
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
+npx react-native run-android
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## Project Structure
 
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```
+src/
+├── components/         # Reusable UI components
+├── config/             # Firebase configuration
+├── constants/          # API keys, colors, strings
+├── hooks/              # Custom hooks (useTranslation)
+├── navigation/         # AppNavigator (Stack + Tabs)
+├── redux/
+│   ├── slices/         # userSlice, tripSlice, earningsSlice
+│   └── store.js
+├── screens/
+│   ├── auth/           # LoginScreen, RegisterScreen
+│   ├── driver/         # DriverHomeScreen
+│   ├── history/        # HistoryScreen
+│   ├── home/           # HomeScreen (passenger)
+│   ├── payment/        # PaymentScreen (Mercado Pago)
+│   ├── profile/        # ProfileScreen
+│   ├── tracking/       # TrackingScreen
+│   └── trip/           # TripScreen
+└── utils/              # validators, formatters
 ```
 
-### iOS
+---
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## Key Features
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+### Passenger
+- 📍 Current location as default origin (auto-filled)
+- 🔍 Google Places Autocomplete for destination
+- 🗺️ Route preview on map before requesting
+- 🚗 Vehicle selection (Economy, XL, Premium) with real distance-based pricing
+- 📡 Real-time driver tracking with animated car marker
+- 💳 Payment via cash or Mercado Pago card gateway
+- ⭐ Rate driver after trip
+- 📋 Trip history grouped by day with totals
 
-```sh
-bundle install
-```
+### Driver
+- 🟢 Go online/offline toggle
+- 🔔 Receive ride requests with distance and fare preview
+- 🚗 Two-phase animated route: driver → pickup → destination
+- ⭐ Rate passenger after trip
+- 💰 Daily earnings summary with trip count
+- 📋 Trip history with totals
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
-```
+## Payment Testing (Mercado Pago Sandbox)
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Use these test cards in the payment screen:
 
-```sh
-# Using npm
-npm run ios
+| Card | Number | Expiry | CVV | Result |
+|------|--------|--------|-----|--------|
+| Visa | 4509 9535 6623 3704 | 12/26 | 123 | ✅ Approved |
+| Mastercard | 5031 7557 3453 0604 | 12/26 | 123 | ✅ Approved |
+| Visa | 4000 0000 0000 0002 | 12/26 | 123 | ❌ Rejected |
 
-# OR using Yarn
-yarn ios
-```
+Use document number: `12345678`
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Git Workflow
 
-## Step 3: Modify your app
+This project follows a branch-per-developer workflow:
 
-Now that you have successfully run the app, let's make changes!
+- `juan` — Driver screens, navigation, tracking, payments, home
+- `ximena` — Auth screens, profile, history, Redux slices, hooks
+- `main` — Production-ready merged code
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## Authors
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- **Juan Esteban Garavito** — [@Juan-Esteban-Garavito](https://github.com/Juan-Esteban-Garavito)
+- **Ximena Zapata** — Colaboradora
 
-## Congratulations! :tada:
+---
 
-You've successfully run and modified your React Native App. :partying_face:
+## Course
 
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+**Subject:** Mobile Development  
+**Institution:** Tecnológico de Antioquia  
+**Semester:** 2026-1  
+**Professor:** Paula Andrea Muñoz Correa
